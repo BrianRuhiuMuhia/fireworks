@@ -1,0 +1,126 @@
+<html>
+
+<head>
+    <title>Fireworks</title>
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+        canvas{
+            cursor:pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript">
+        alert("click anywhere on the black screen to generate fireworks")
+        alert("Don't create to many fireworks")
+        const canvas = document.getElementById("canvas")
+        canvas.width = innerWidth
+        canvas.height = innerHeight
+        const ctx = canvas.getContext("2d")
+        const particleArray = []
+        const starArray = []
+        window.addEventListener("resize", function() {
+            canvas.width = innerWidth
+            canvas.height = innerHeight
+        })
+        class Star {
+            constructor(position, radius) {
+                this.x = position.x
+                this.y = position.y
+                this.radius = radius
+                this.color = "white"
+            }
+            draw() {
+                ctx.beginPath()
+                ctx.fillStyle = this.color
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+                ctx.fill()
+            }
+        }
+        class Particle {
+            constructor(position, velocity, radius, color) {
+                this.x = position.x
+                this.y = position.y
+                this.velocity = velocity
+                this.radius = radius
+                this.color = color
+                this.opacity = 1
+
+            }
+            draw() {
+                ctx.beginPath()
+                ctx.globalAlpha = this.opacity
+                ctx.fillStyle = this.color
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+                ctx.fill()
+            }
+            update() {
+                this.draw()
+                this.x += this.velocity.x
+                this.y += this.velocity.y
+
+            }
+        }
+
+        document.addEventListener("click", (event) => {
+            let i = (Math.random() * 1000) + 5
+            for (let j = 0; j < i; j++) {
+                let radius = Math.random() * 4 + 1
+                let color = `rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},${Math.random()+0.5})`
+                particleArray.push(new Particle({
+                    x: event.clientX,
+                    y: event.clientY
+                }, {
+                    x: (Math.random() - 0.5) * 10 + 1,
+                    y: (Math.random() - 0.5) * 10 + 1
+                }, radius, color))
+            }
+        })
+
+        function drawStars() {
+            let x = 0,
+                y = 0,
+                radius = 0
+            for (let i = 0; i < 100; i++) {
+                x = Math.random() * innerWidth
+                y = Math.random() * innerHeight
+                radius = Math.random() * 2 + 1
+                starArray.push(new Star({
+                    x: x,
+                    y: y
+                }, radius))
+            }
+        }
+        drawStars()
+
+        function animate() {
+            requestAnimationFrame(animate)
+            if (particleArray.length !== 0) {
+                particleArray.forEach((element, index) => {
+                    setInterval(() => {
+                        element.opacity = -1
+                    }, 2000)
+                    element.update()
+                    if (element.opacity <= 0) {
+                        particleArray.splice(index, 1)
+                    }
+                })
+            }
+            ctx.fillStyle = "white"
+            starArray.forEach((element) => {
+                element.draw()
+            })
+            ctx.fillStyle = "rgba(0,0,0,0.2)"
+            ctx.fillRect(0, 0, innerWidth, innerHeight)
+        }
+        animate()
+    </script>
+</body>
+
+</html>
